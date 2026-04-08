@@ -1,12 +1,6 @@
-const digiteyesdataloaderSfdataloaderqueueSelectors = {};
-
-async function openModule(page) {
-  return page;
-}
+const { createDataLoaderModuleHelpers } = require('./digiteyesdataloaderCommon');
+const { digiteyesdataloaderSfdataloaderqueueSelectors } = require('../selectors/digiteyesdataloaderSfdataloaderqueue.selectors');
 
 module.exports = {
-  digiteyesdataloaderSfdataloaderqueueHelpers: {
-    openModule,
-    selectors: digiteyesdataloaderSfdataloaderqueueSelectors
-  }
+  digiteyesdataloaderSfdataloaderqueueHelpers: createDataLoaderModuleHelpers(digiteyesdataloaderSfdataloaderqueueSelectors)
 };

@@ -1,12 +1,6 @@
-const digiteyesdataloaderSfdataloadererrorcasesSelectors = {};
-
-async function openModule(page) {
-  return page;
-}
+const { createDataLoaderModuleHelpers } = require('./digiteyesdataloaderCommon');
+const { digiteyesdataloaderSfdataloadererrorcasesSelectors } = require('../selectors/digiteyesdataloaderSfdataloadererrorcases.selectors');
 
 module.exports = {
-  digiteyesdataloaderSfdataloadererrorcasesHelpers: {
-    openModule,
-    selectors: digiteyesdataloaderSfdataloadererrorcasesSelectors
-  }
+  digiteyesdataloaderSfdataloadererrorcasesHelpers: createDataLoaderModuleHelpers(digiteyesdataloaderSfdataloadererrorcasesSelectors)
 };

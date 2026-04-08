@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloaderqueueHelpers
 } = require('./_shared');
 
 test("TC_9_To_Validate_that_records_without_a_Salesforce_ID_are_displayed_as_Missing", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_9_To_Validate_that_records_without_a_Salesforce_ID_are_displayed_as_Mis
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open the queue page and verify missing Salesforce ids are shown', async () => {
+    await digiteyesdataloaderSfdataloaderqueueHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloaderqueueHelpers.expectTableContainsText(page, 'Missing');
   });
 
   await test.step('Logout from the application', async () => {

@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_11_To_Verify_that_clicking_the_Refresh _button_reloads_the_ page", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_11_To_Verify_that_clicking_the_Refresh _button_reloads_the_ page", asyn
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and refresh the listing', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.clickRefresh(page);
   });
 
   await test.step('Logout from the application', async () => {

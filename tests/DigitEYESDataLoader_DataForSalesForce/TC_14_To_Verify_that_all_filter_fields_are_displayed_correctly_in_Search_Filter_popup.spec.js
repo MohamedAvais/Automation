@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_14_To_Verify_that_all_filter_fields_are_displayed_correctly_in_Search_Filter_popup", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_14_To_Verify_that_all_filter_fields_are_displayed_correctly_in_Search_F
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify the search filter fields', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.openSearchFilter(page);
+    await digiteyesdataloaderDataforsalesforceHelpers.verifySearchFilterFields(page);
   });
 
   await test.step('Logout from the application', async () => {

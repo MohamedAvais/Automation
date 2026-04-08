@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_2_To_Verify_That_Error_Cases_Page_Displays_All_Eight_Required_Columns", async ({ page }) => {
@@ -16,7 +17,18 @@ test("TC_2_To_Verify_That_Error_Cases_Page_Displays_All_Eight_Required_Columns",
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and verify the expected columns', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.expectListingHeaders(page, [
+      'Camp ID',
+      'Camp Date',
+      'Location',
+      'Country',
+      'Participant ID',
+      'Participant Name',
+      'Status',
+      'Assigned'
+    ]);
   });
 
   await test.step('Logout from the application', async () => {

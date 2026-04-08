@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_01_To_Verify_that_successful_navigation_to_Salesforce_Data_Loader_Queue_page", async ({ page }) => {
@@ -16,7 +17,8 @@ test("TC_01_To_Verify_that_successful_navigation_to_Salesforce_Data_Loader_Queue
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify the page loads', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
   });
 
   await test.step('Logout from the application', async () => {

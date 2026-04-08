@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloaderqueueHelpers
 } = require('./_shared');
 
 test("TC_6_To_Verify_that_the_#Regs_column_displays_only_numeric_values", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_6_To_Verify_that_the_#Regs_column_displays_only_numeric_values", async 
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open the queue page and verify regs values are numeric', async () => {
+    await digiteyesdataloaderSfdataloaderqueueHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloaderqueueHelpers.expectColumnValuesNumeric(page, ['#Regs', 'Regs']);
   });
 
   await test.step('Logout from the application', async () => {

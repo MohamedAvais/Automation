@@ -1,4 +1,31 @@
 const commonSelectors = {
+  microsoftLoginUsername: [
+    { type: 'css', value: '#i0116', name: 'css:#i0116' },
+    { type: 'css', value: 'input[name="loginfmt"]', name: 'css:input[name=loginfmt]' },
+    { type: 'placeholder', value: 'Email, phone, or Skype', name: 'placeholder:Email, phone, or Skype' }
+  ],
+  microsoftLoginPassword: [
+    { type: 'css', value: '#i0118', name: 'css:#i0118' },
+    { type: 'css', value: 'input[name="passwd"]', name: 'css:input[name=passwd]' },
+    { type: 'placeholder', value: 'Password', name: 'placeholder:Password' }
+  ],
+  legacyLoginUsername: [
+    { type: 'label', value: 'Username', name: 'label:Username' },
+    { type: 'css', value: '#username', name: 'css:#username' },
+    { type: 'css', value: 'input[name="username"]', name: 'css:input[name=username]' },
+    { type: 'xpath', value: '//*[@id="username"]', name: 'xpath:username' }
+  ],
+  legacyLoginPassword: [
+    { type: 'label', value: 'Password', name: 'label:Password' },
+    { type: 'css', value: '#password', name: 'css:#password' },
+    { type: 'css', value: 'input[name="password"]', name: 'css:input[name=password]' },
+    { type: 'xpath', value: '//*[@id="password"]', name: 'xpath:password' }
+  ],
+  staySignedInPrompt: [
+    { type: 'role', role: 'heading', options: { name: /stay signed in\?/i }, name: 'role:Stay signed in heading' },
+    { type: 'text', value: 'Stay signed in?', name: 'text:Stay signed in?' },
+    { type: 'text', value: "Don't show this again", name: "text:Don't show this again" }
+  ],
   loginUsername: [
     { type: 'label', value: 'Username', name: 'label:Username' },
     { type: 'css', value: '#i0116', name: 'css:#i0116' },
@@ -31,13 +58,13 @@ const commonSelectors = {
   ],
   staySignedInYes: [
     { type: 'role', role: 'button', options: { name: /^yes$/i }, name: 'role:Yes' },
-    { type: 'css', value: '#idSIButton9', name: 'css:#idSIButton9' },
-    { type: 'css', value: 'input[value="Yes"]', name: 'css:input[value=Yes]' }
+    { type: 'css', value: 'input#idSIButton9[value="Yes"]', name: 'css:#idSIButton9[value=Yes]' },
+    { type: 'css', value: 'input[value="Yes"]', name: 'css:input[value=Yes]' },
+    { type: 'xpath', value: '//input[@id="idSIButton9" and @value="Yes"]', name: 'xpath:Yes input' }
   ],
   appSignIn: [
     { type: 'role', role: 'button', options: { name: /sign-?in with office 365/i }, name: 'role:Office 365 Sign In' },
     { type: 'text', value: 'Sign-in with Office 365', name: 'text:Sign-in with Office 365' },
-    { type: 'role', role: 'button', options: { name: /^sign in$/i }, name: 'role:App Sign In' },
     { type: 'css', value: 'button.btn.btn-primary.btn-sm.full-width.m-b', name: 'css:app sign in button' },
     { type: 'xpath', value: '//button[contains(@class,"full-width") and normalize-space()="Sign in"]', name: 'xpath:app sign in' }
   ],

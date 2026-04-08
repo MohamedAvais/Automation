@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloaderqueueHelpers
 } = require('./_shared');
 
 test("TC_1_To_Verify_that_successful_navigation_to_SF_Data_Loader_Queue_page", async ({ page }) => {
@@ -16,7 +17,8 @@ test("TC_1_To_Verify_that_successful_navigation_to_SF_Data_Loader_Queue_page", a
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open the queue page and verify it loads', async () => {
+    await digiteyesdataloaderSfdataloaderqueueHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
   });
 
   await test.step('Logout from the application', async () => {

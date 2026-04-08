@@ -1,12 +1,6 @@
-const digiteyesdataloaderParticipantconsentsSelectors = {};
-
-async function openModule(page) {
-  return page;
-}
+const { createDataLoaderModuleHelpers } = require('./digiteyesdataloaderCommon');
+const { digiteyesdataloaderParticipantconsentsSelectors } = require('../selectors/digiteyesdataloaderParticipantconsents.selectors');
 
 module.exports = {
-  digiteyesdataloaderParticipantconsentsHelpers: {
-    openModule,
-    selectors: digiteyesdataloaderParticipantconsentsSelectors
-  }
+  digiteyesdataloaderParticipantconsentsHelpers: createDataLoaderModuleHelpers(digiteyesdataloaderParticipantconsentsSelectors)
 };

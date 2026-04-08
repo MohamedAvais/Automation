@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_03_Verify_correct_display_of_the_campaign_status_asClosed_in_the_Queue_list", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_03_Verify_correct_display_of_the_campaign_status_asClosed_in_the_Queue_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify closed statuses', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.expectColumnValuesEqual(page, 'Status', 'Closed');
   });
 
   await test.step('Logout from the application', async () => {

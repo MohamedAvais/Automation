@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_9_To_Verify_that_all_filter_fields_are_displayed_correctly_in_Search_Filter_popup", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_9_To_Verify_that_all_filter_fields_are_displayed_correctly_in_Search_Fi
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and verify the search filter fields', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openSearchFilter(page);
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.verifySearchFilterFields(page);
   });
 
   await test.step('Logout from the application', async () => {

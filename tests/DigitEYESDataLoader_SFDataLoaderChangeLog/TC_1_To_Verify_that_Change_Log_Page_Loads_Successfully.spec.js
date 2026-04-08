@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloaderchangelogHelpers
 } = require('./_shared');
 
 test("TC_1_To_Verify_that_Change_Log_Page_Loads_Successfully", async ({ page }) => {
@@ -16,7 +17,8 @@ test("TC_1_To_Verify_that_Change_Log_Page_Loads_Successfully", async ({ page }) 
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open the Change Log page and verify it loads', async () => {
+    await digiteyesdataloaderSfdataloaderchangelogHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
   });
 
   await test.step('Logout from the application', async () => {
