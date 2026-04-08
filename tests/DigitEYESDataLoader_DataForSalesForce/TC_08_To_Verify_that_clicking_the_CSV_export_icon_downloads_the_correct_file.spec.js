@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_08_To_Verify_that_clicking_the_CSV_export_icon_downloads_the_correct_file", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_08_To_Verify_that_clicking_the_CSV_export_icon_downloads_the_correct_fi
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and download the CSV export', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.downloadFirstCsv(page);
   });
 
   await test.step('Logout from the application', async () => {

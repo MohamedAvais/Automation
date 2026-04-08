@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_3_To_Verify_that_error_case_records_are_displayed _in_a_proper_tabular_format", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_3_To_Verify_that_error_case_records_are_displayed _in_a_proper_tabular_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and verify rows render in the table', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.expectListingHeaders(page, ['Camp ID', 'Participant ID', 'Participant Name']);
   });
 
   await test.step('Logout from the application', async () => {

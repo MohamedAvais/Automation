@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_20_To_Verify_that_Reset_button_functionality_on_Camp_Cluster_Data_Search_Filter_page", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_20_To_Verify_that_Reset_button_functionality_on_Camp_Cluster_Data_Searc
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and reset the search filter', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.openSearchFilter(page);
+    await digiteyesdataloaderDataforsalesforceHelpers.resetSearchFilter(page);
   });
 
   await test.step('Logout from the application', async () => {

@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_06_To_Verify_that_the_Picked_By_column_displays_only_numeric_values", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_06_To_Verify_that_the_Picked_By_column_displays_only_numeric_values", a
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify picked by values', async () => {
+    await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderDataforsalesforceHelpers.expectColumnValuesNumeric(page, 'Picked By');
   });
 
   await test.step('Logout from the application', async () => {

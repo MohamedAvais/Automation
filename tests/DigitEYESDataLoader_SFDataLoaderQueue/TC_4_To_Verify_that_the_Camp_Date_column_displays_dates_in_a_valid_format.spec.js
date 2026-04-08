@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloaderqueueHelpers
 } = require('./_shared');
 
 test("TC_4_To_Verify_that_the_Camp_Date_column_displays_dates_in_a_valid_format", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_4_To_Verify_that_the_Camp_Date_column_displays_dates_in_a_valid_format"
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open the queue page and verify camp dates look valid', async () => {
+    await digiteyesdataloaderSfdataloaderqueueHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloaderqueueHelpers.expectColumnValuesMatchPattern(page, ['Camp Date', 'Dated'], /\b(?:\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}[/-]\d{1,2}[/-]\d{1,2}|\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4})\b/);
   });
 
   await test.step('Logout from the application', async () => {

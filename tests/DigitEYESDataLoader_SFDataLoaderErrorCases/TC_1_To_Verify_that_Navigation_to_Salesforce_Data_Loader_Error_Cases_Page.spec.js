@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_1_To_Verify_that_Navigation_to_Salesforce_Data_Loader_Error_Cases_Page", async ({ page }) => {
@@ -16,7 +17,8 @@ test("TC_1_To_Verify_that_Navigation_to_Salesforce_Data_Loader_Error_Cases_Page"
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and verify the page loads', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
   });
 
   await test.step('Logout from the application', async () => {

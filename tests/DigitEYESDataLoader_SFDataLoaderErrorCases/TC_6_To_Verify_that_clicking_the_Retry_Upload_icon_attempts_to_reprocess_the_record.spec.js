@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_6_To_Verify_that_clicking_the_Retry_Upload_icon_attempts_to_reprocess_the_record", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_6_To_Verify_that_clicking_the_Retry_Upload_icon_attempts_to_reprocess_t
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and retry the first upload', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.retryFirstUpload(page);
   });
 
   await test.step('Logout from the application', async () => {

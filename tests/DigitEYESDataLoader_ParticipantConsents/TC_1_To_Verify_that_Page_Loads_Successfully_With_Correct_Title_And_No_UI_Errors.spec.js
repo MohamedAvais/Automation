@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderParticipantconsentsHelpers
 } = require('./_shared');
 
 test("TC_1_To_Verify_that_Page_Loads_Successfully_With_Correct_Title_And_No_UI_Errors", async ({ page }) => {
@@ -16,7 +17,8 @@ test("TC_1_To_Verify_that_Page_Loads_Successfully_With_Correct_Title_And_No_UI_E
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Participant Consents and verify the page loads', async () => {
+    await digiteyesdataloaderParticipantconsentsHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
   });
 
   await test.step('Logout from the application', async () => {

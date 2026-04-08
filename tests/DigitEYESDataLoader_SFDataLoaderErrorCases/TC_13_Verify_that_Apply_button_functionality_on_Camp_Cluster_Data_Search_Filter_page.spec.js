@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesdataloaderSfdataloadererrorcasesHelpers
 } = require('./_shared');
 
 test("TC_13_Verify_that_Apply_button_functionality_on_Camp_Cluster_Data_Search_Filter_page", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_13_Verify_that_Apply_button_functionality_on_Camp_Cluster_Data_Search_F
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Error Cases and apply the search filter', async () => {
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.openSearchFilter(page);
+    await digiteyesdataloaderSfdataloadererrorcasesHelpers.applySearchFilterUsingTableData(page);
   });
 
   await test.step('Logout from the application', async () => {
