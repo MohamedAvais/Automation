@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_08_To_Verify_that_Mark_Data_Imported_to_Salesforce_updates_camp_status", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_08_To_Verify_that_Mark_Data_Imported_to_Salesforce_updates_camp_status"
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and mark the first available row as imported', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.markFirstRowDataImported(page);
   });
 
   await test.step('Logout from the application', async () => {

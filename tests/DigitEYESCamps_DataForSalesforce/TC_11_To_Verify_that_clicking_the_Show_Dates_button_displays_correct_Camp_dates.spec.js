@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_11_To_Verify_that_clicking_the_Show_Dates_button_displays_correct_Camp_dates", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_11_To_Verify_that_clicking_the_Show_Dates_button_displays_correct_Camp_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and show the camp dates', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.clickShowDatesAndExpectCampDates(page);
   });
 
   await test.step('Logout from the application', async () => {

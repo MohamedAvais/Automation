@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_02_To_Verify_that_Closed_status_is_displayed_correctly_for_completed_camp_records", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_02_To_Verify_that_Closed_status_is_displayed_correctly_for_completed_ca
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify closed camp records are visible', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.expectListingHeaders(page, ['Status']);
+    await digiteyescampsDataforsalesforceHelpers.expectColumnContainsValue(page, 'Status', 'Closed');
   });
 
   await test.step('Logout from the application', async () => {

@@ -1,5 +1,5 @@
 const { expect } = require('@playwright/test');
-const { safeClick, safeExpectVisible, safeFill, waitForAppToSettle } = require('./actions');
+const { safeClick, safeClickIfFound, safeExpectVisible, safeFill, waitForAppToSettle } = require('./actions');
 const { resolveFirst } = require('./fallback');
 const { commonSelectors } = require('../selectors/common.selectors');
 const { digiteyescampsManagecampsclusterSelectors } = require('../selectors/digiteyescampsManagecampscluster.selectors');
@@ -7,6 +7,21 @@ const { digiteyescampsManagecampsclusterSelectors } = require('../selectors/digi
 async function selectLoginCountry(page, country = 'India') {
   if (country !== 'India') {
     throw new Error(`Login country helper currently supports India only. Received: ${country}`);
+  }
+
+  const countryVisible = await resolveFirst(page, commonSelectors.loginCountryIndia, {
+    timeoutPerCandidate: 1500
+  }).catch(() => null);
+
+  if (!countryVisible) {
+    const appSignIn = await safeClickIfFound(page, commonSelectors.appSignIn, 'App Sign In before country selection', {
+      timeoutPerCandidate: 2000,
+      actionTimeout: 5000
+    });
+
+    if (appSignIn.clicked) {
+      await waitForAppToSettle(page, 2000);
+    }
   }
 
   await safeClick(page, commonSelectors.loginCountryIndia, 'Login Country India', { timeoutPerCandidate: 5000 });

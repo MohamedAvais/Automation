@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsParticipantsHelpers
 } = require('./_shared');
 
 test("TC_02_To_verify_that_Search_Filter_button_is_functional_on_Paricipant_page", async ({ page }) => {
@@ -17,6 +18,8 @@ test("TC_02_To_verify_that_Search_Filter_button_is_functional_on_Paricipant_page
   });
 
   await test.step('Run converted flow', async () => {
+    await digiteyescampsParticipantsHelpers.openModule(page, data.Country || 'India');
+    await digiteyescampsParticipantsHelpers.openSearchFilter(page);
   });
 
   await test.step('Logout from the application', async () => {

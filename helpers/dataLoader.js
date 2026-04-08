@@ -136,13 +136,15 @@ function loadRuntimeData() {
     process.env.VISIONSPRING_EMAIL,
     csvRecord.Username_Admin,
     csvRecord.Email,
-    csvRecord.Username
+    csvRecord.Username,
+    'mammoth2@visionspring.org'
   );
   const password = firstNonEmpty(
     process.env.PASSWORD_ADMIN,
     process.env.VISIONSPRING_PASSWORD,
     csvRecord.Password_Admin,
-    csvRecord.Password
+    csvRecord.Password,
+    'Bat69424'
   );
   const country = firstNonEmpty(
     process.env.VISIONSPRING_COUNTRY,

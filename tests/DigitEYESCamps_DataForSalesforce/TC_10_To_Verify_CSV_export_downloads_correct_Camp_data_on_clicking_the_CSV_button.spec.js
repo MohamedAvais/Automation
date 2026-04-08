@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_10_To_Verify_CSV_export_downloads_correct_Camp_data_on_clicking_the_CSV_button", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_10_To_Verify_CSV_export_downloads_correct_Camp_data_on_clicking_the_CSV
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and download the CSV export', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.downloadFirstCsv(page);
   });
 
   await test.step('Logout from the application', async () => {

@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_01_To_Verify_that_Data_for_Salesforce_page_loads_successfully_without_errors", async ({ page }) => {
@@ -16,7 +17,16 @@ test("TC_01_To_Verify_that_Data_for_Salesforce_page_loads_successfully_without_e
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify the expected table headers', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.expectListingHeaders(page, [
+      'Ref#',
+      'Project Code',
+      'Camp Name',
+      'Country: State',
+      'Status',
+      'Dated'
+    ]);
   });
 
   await test.step('Logout from the application', async () => {

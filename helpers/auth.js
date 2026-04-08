@@ -19,14 +19,33 @@ async function isAnySelectorVisible(page, candidates, timeoutPerCandidate = 1500
   }
 }
 
+async function submitMicrosoftStep(page, label) {
+  const { locator, matchedBy } = await resolveFirst(page, commonSelectors.signIn, { timeoutPerCandidate: 5000 });
+
+  for (let attempt = 0; attempt < 20; attempt++) {
+    if (await locator.isEnabled().catch(() => false)) {
+      await locator.click({ timeout: 5000 });
+      console.log(`[CLICK] ${label} -> ${matchedBy}`);
+      await waitForAppToSettle(page, 750);
+      return;
+    }
+
+    await page.waitForTimeout(250);
+  }
+
+  await page.keyboard.press('Enter');
+  console.log(`[PRESS] ${label} -> Enter fallback`);
+  await waitForAppToSettle(page, 750);
+}
+
 async function loginWithMicrosoftFlow(page, data) {
   const username = requireCredential(data.Username_Admin, 'Vision Spring username/email');
   const password = requireCredential(data.Password_Admin, 'Vision Spring password');
 
   await safeFill(page, commonSelectors.loginUsername, username, 'Microsoft Email', { timeoutPerCandidate: 5000 });
-  await safeClick(page, commonSelectors.signIn, 'Microsoft Next');
+  await submitMicrosoftStep(page, 'Microsoft Next');
   await safeFill(page, commonSelectors.loginPassword, password, 'Microsoft Password', { timeoutPerCandidate: 5000 });
-  await safeClick(page, commonSelectors.signIn, 'Microsoft Sign In');
+  await submitMicrosoftStep(page, 'Microsoft Sign In');
 
   const staySignedIn = await clickIfFound(page, commonSelectors.staySignedInYes, {
     timeoutPerCandidate: 3000,
@@ -96,6 +115,17 @@ async function loginAsAdmin(page, data) {
   } catch (error) {
     await waitForAppToSettle(page, 2500);
 
+    const bouncedBackToMicrosoftLogin = await isAnySelectorVisible(page, [
+      { type: 'css', value: '#i0116', name: 'css:#i0116' },
+      { type: 'css', value: 'input[name="loginfmt"]', name: 'css:input[name=loginfmt]' },
+      { type: 'placeholder', value: 'Email, phone, or Skype', name: 'placeholder:Email, phone, or Skype' }
+    ], 2000);
+
+    if (bouncedBackToMicrosoftLogin) {
+      console.log('Detected return to Microsoft sign-in page, retrying login flow once.');
+      await loginWithMicrosoftFlow(page, data);
+    }
+
     const retryAppSignIn = await clickIfFound(page, commonSelectors.appSignIn, {
       timeoutPerCandidate: 2000,
       actionTimeout: 5000
@@ -113,6 +143,13 @@ async function loginAsAdmin(page, data) {
 async function logout(page) {
   await waitForAppToSettle(page, 750);
   const logoutHref = await page.locator('a[href*="logout.php"]').first().getAttribute('href').catch(() => null);
+
+  if (logoutHref) {
+    await page.goto(new URL(logoutHref, page.url()).toString(), { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1500);
+    return;
+  }
+
   const explicitLogoutControls = [
     page.getByRole('button', { name: /log out|logout/i }).first(),
     page.getByText(/^logout$/i).first(),
@@ -134,12 +171,6 @@ async function logout(page) {
   const directLogout = await clickIfFound(page, commonSelectors.logout, { timeoutPerCandidate: 1500, actionTimeout: 5000 });
 
   if (!directLogout.clicked) {
-    if (logoutHref) {
-      await page.goto(new URL(logoutHref, page.url()).toString(), { waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(1500);
-      return;
-    }
-
     await safeClick(page, commonSelectors.userProfile, 'User Profile');
     await page.waitForTimeout(500);
     await safeClick(page, commonSelectors.logout, 'Logout');

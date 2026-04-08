@@ -1,7 +1,21 @@
 node_modules/
-.playwright-mcp/
-playwright-report/
+
+# Playwright and test output
 test-results/
+playwright-report/
 allure-results/
-allure-report-*/
+allure-report*/
+.playwright-mcp/
+
+# Generated shareable reports and archives
+Result/
 *.zip
+allure-results-list.txt
+/index.html
+
+# Local environment and editor noise
+.env
+.env.*
+!.env.example
+Thumbs.db
+Desktop.ini

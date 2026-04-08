@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_09_To_Verify_XLS_export_downloads_correct_Camp_data_on_clicking_the_XLS_button", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_09_To_Verify_XLS_export_downloads_correct_Camp_data_on_clicking_the_XLS
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and download the XLS export', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.downloadFirstXls(page);
   });
 
   await test.step('Logout from the application', async () => {

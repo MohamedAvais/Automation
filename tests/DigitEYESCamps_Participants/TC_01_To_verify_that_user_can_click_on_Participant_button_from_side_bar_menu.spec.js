@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsParticipantsHelpers
 } = require('./_shared');
 
 test("TC_01_To verify_that_user_can_click_on_Participant_button_from_side_bar_menu", async ({ page }) => {
@@ -17,6 +18,7 @@ test("TC_01_To verify_that_user_can_click_on_Participant_button_from_side_bar_me
   });
 
   await test.step('Run converted flow', async () => {
+    await digiteyescampsParticipantsHelpers.openModule(page, data.Country || 'India');
   });
 
   await test.step('Logout from the application', async () => {

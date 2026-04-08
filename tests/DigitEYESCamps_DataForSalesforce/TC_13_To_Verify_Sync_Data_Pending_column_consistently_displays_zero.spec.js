@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyescampsDataforsalesforceHelpers
 } = require('./_shared');
 
 test("TC_13_To_Verify _Sync_Data_Pending_column_consistently_displays_zero", async ({ page }) => {
@@ -16,7 +17,10 @@ test("TC_13_To_Verify _Sync_Data_Pending_column_consistently_displays_zero", asy
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step('Open Data for Salesforce and verify Sync Data Pending is zero', async () => {
+    await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
+    await digiteyescampsDataforsalesforceHelpers.expectListingHeaders(page, ['#Sync DataPending']);
+    await digiteyescampsDataforsalesforceHelpers.expectColumnValuesEqual(page, '#Sync DataPending', '0');
   });
 
   await test.step('Logout from the application', async () => {
