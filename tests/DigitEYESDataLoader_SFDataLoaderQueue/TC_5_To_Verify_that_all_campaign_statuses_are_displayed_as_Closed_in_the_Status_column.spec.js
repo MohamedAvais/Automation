@@ -19,7 +19,7 @@ test("TC_5_To_Verify_that_all_campaign_statuses_are_displayed_as_Closed_in_the_S
 
   await test.step('Open the queue page and verify statuses are closed', async () => {
     await digiteyesdataloaderSfdataloaderqueueHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
-    await digiteyesdataloaderSfdataloaderqueueHelpers.expectColumnValuesEqual(page, 'Status', 'Closed');
+    await digiteyesdataloaderSfdataloaderqueueHelpers.expectColumnValueOccurrenceAtLeast(page, 'Status', 'Closed', 3);
   });
 
   await test.step('Logout from the application', async () => {

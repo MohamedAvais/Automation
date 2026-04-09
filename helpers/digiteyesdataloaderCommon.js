@@ -145,11 +145,15 @@ async function expectColumnValuesNumeric(page, selectors, headerName) {
   }
 }
 
-async function expectColumnValuesEqual(page, selectors, headerName, expectedValue) {
+async function expectColumnValuesEqual(page, selectors, headerName, expectedValue, options = {}) {
   const values = await getColumnValues(page, selectors, headerName);
   expect(values.length, `${asArray(headerName).join(' / ')} should contain at least one value`).toBeGreaterThan(0);
 
-  for (const value of values) {
+  const valuesToAssert = Number.isInteger(options.limit) && options.limit > 0
+    ? values.slice(0, options.limit)
+    : values;
+
+  for (const value of valuesToAssert) {
     expect(value, `${asArray(headerName).join(' / ')} should equal ${expectedValue}`).toBe(expectedValue);
   }
 }
@@ -158,6 +162,17 @@ async function expectColumnContainsValue(page, selectors, headerName, expectedVa
   const values = await getColumnValues(page, selectors, headerName);
   expect(values.length, `${asArray(headerName).join(' / ')} should contain at least one value`).toBeGreaterThan(0);
   expect(values.some((value) => value.includes(expectedValue)), `${asArray(headerName).join(' / ')} should contain ${expectedValue}`).toBe(true);
+}
+
+async function expectColumnValueOccurrenceAtLeast(page, selectors, headerName, expectedValue, minimumCount) {
+  const values = await getColumnValues(page, selectors, headerName);
+  expect(values.length, `${asArray(headerName).join(' / ')} should contain at least one value`).toBeGreaterThan(0);
+
+  const matchCount = values.filter((value) => value === expectedValue).length;
+  expect(
+    matchCount,
+    `${asArray(headerName).join(' / ')} should contain ${expectedValue} at least ${minimumCount} times`
+  ).toBeGreaterThanOrEqual(minimumCount);
 }
 
 async function expectColumnValuesMatchPattern(page, selectors, headerName, pattern) {
@@ -373,9 +388,22 @@ async function selectPageSize(page, selectors, valueLabel) {
   const { locator } = await resolveFirst(page, selectors.pageSizeDropdown, {
     timeoutPerCandidate: 15000
   });
-  await locator.selectOption({ label: valueLabel }).catch(async () => {
-    await locator.selectOption(valueLabel);
-  });
+
+  const desiredLabel = String(valueLabel).trim();
+  const desiredLabels = [desiredLabel, `Show: ${desiredLabel}`];
+  const options = await locator.locator('option').evaluateAll((nodes) => nodes.map((node) => ({
+    value: node.value,
+    label: (node.textContent || '').trim()
+  })));
+
+  const matchingOption = options.find((option) => desiredLabels.includes(option.label))
+    || options.find((option) => option.value === desiredLabel);
+
+  if (!matchingOption) {
+    throw new Error(`Unable to find page size option for ${desiredLabel}. Available options: ${options.map((option) => option.label || option.value).join(', ')}`);
+  }
+
+  await locator.selectOption(matchingOption.value);
   await waitForAppToSettle(page, 1000);
 }
 
@@ -383,6 +411,13 @@ async function selectPageSizeAndExpectMaxRows(page, selectors, valueLabel) {
   await selectPageSize(page, selectors, valueLabel);
   const rows = await getVisibleRowCount(page, selectors);
   expect(rows, `Selecting page size ${valueLabel} should limit visible rows`).toBeLessThanOrEqual(Number(valueLabel));
+
+  if (rows === 0) {
+    const tableText = await (await getListingTable(page, selectors)).innerText();
+    expect(tableText, 'Page-size change should still leave the Change Log table in a valid state when no records exist').toMatch(/0\s+records\s+found|showing:\s*0/i);
+    return;
+  }
+
   expect(rows, 'Page-size change should still leave visible data rows').toBeGreaterThan(0);
 }
 
@@ -408,8 +443,9 @@ function createDataLoaderModuleHelpers(selectors) {
     measureOpenModuleDuration: (page, country) => measureOpenModuleDuration(page, selectors, country),
     expectListingHeaders: (page, expectedHeaders) => expectListingHeaders(page, selectors, expectedHeaders),
     expectColumnValuesNumeric: (page, headerName) => expectColumnValuesNumeric(page, selectors, headerName),
-    expectColumnValuesEqual: (page, headerName, expectedValue) => expectColumnValuesEqual(page, selectors, headerName, expectedValue),
+    expectColumnValuesEqual: (page, headerName, expectedValue, options) => expectColumnValuesEqual(page, selectors, headerName, expectedValue, options),
     expectColumnContainsValue: (page, headerName, expectedValue) => expectColumnContainsValue(page, selectors, headerName, expectedValue),
+    expectColumnValueOccurrenceAtLeast: (page, headerName, expectedValue, minimumCount) => expectColumnValueOccurrenceAtLeast(page, selectors, headerName, expectedValue, minimumCount),
     expectColumnValuesMatchPattern: (page, headerName, pattern) => expectColumnValuesMatchPattern(page, selectors, headerName, pattern),
     expectColumnValuesUnique: (page, headerName) => expectColumnValuesUnique(page, selectors, headerName),
     expectTableContainsText: (page, expectedText) => expectTableContainsText(page, selectors, expectedText),

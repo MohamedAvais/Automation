@@ -1,12 +1,13 @@
 const commonSelectors = {
   microsoftLoginUsername: [
-    { type: 'css', value: '#i0116', name: 'css:#i0116' },
-    { type: 'css', value: 'input[name="loginfmt"]', name: 'css:input[name=loginfmt]' },
+    { type: 'css', value: 'input#i0116:not([type="hidden"])', name: 'css:#i0116 visible' },
+    { type: 'css', value: 'input[name="loginfmt"]:not([type="hidden"])', name: 'css:input[name=loginfmt] visible' },
     { type: 'placeholder', value: 'Email, phone, or Skype', name: 'placeholder:Email, phone, or Skype' }
   ],
   microsoftLoginPassword: [
-    { type: 'css', value: '#i0118', name: 'css:#i0118' },
-    { type: 'css', value: 'input[name="passwd"]', name: 'css:input[name=passwd]' },
+    { type: 'label', value: 'Password', name: 'label:Password' },
+    { type: 'css', value: 'input#i0118[type="password"]', name: 'css:#i0118[type=password]' },
+    { type: 'css', value: 'input[name="passwd"][type="password"]', name: 'css:input[name=passwd][type=password]' },
     { type: 'placeholder', value: 'Password', name: 'placeholder:Password' }
   ],
   legacyLoginUsername: [
@@ -68,6 +69,11 @@ const commonSelectors = {
     { type: 'css', value: 'button.btn.btn-primary.btn-sm.full-width.m-b', name: 'css:app sign in button' },
     { type: 'xpath', value: '//button[contains(@class,"full-width") and normalize-space()="Sign in"]', name: 'xpath:app sign in' }
   ],
+  countryPicker: [
+    { type: 'css', value: '#divLoginCountry', name: 'css:#divLoginCountry' },
+    { type: 'css', value: '#divLoginCountry label[for="btnLoginCountryIND"]', name: 'css:#divLoginCountry India label' },
+    { type: 'xpath', value: '//*[@id="divLoginCountry"]//*[@for="btnLoginCountryIND"]', name: 'xpath:divLoginCountry India label' }
+  ],
   loginCountryIndia: [
     { type: 'css', value: '#divLoginCountry label[for="btnLoginCountryIND"]', name: 'css:#divLoginCountry India label' },
     { type: 'xpath', value: '//*[@id="divLoginCountry"]//*[@for="btnLoginCountryIND"]', name: 'xpath:divLoginCountry India label' },
@@ -75,18 +81,23 @@ const commonSelectors = {
     { type: 'text', value: 'India', name: 'text:India' },
     { type: 'xpath', value: '//*[@for="btnLoginCountryIND"]', name: 'xpath:country India label' }
   ],
+  appReady: [
+    { type: 'role', role: 'link', options: { name: /welcome/i }, name: 'role:Welcome link' },
+    { type: 'role', role: 'link', options: { name: /log out|logout/i }, name: 'role:Logout link' },
+    { type: 'text', value: 'DigitEYES Data Loader', name: 'text:DigitEYES Data Loader' },
+    { type: 'text', value: 'DigitEYES Camps', name: 'text:DigitEYES Camps' }
+  ],
   loginReadyState: [
     { type: 'css', value: '#i0116', name: 'css:#i0116' },
     { type: 'css', value: 'input[name="loginfmt"]', name: 'css:input[name=loginfmt]' },
     { type: 'css', value: '#username', name: 'css:#username' }
   ],
   postLoginReady: [
-    { type: 'text', value: 'Sign-in with Office 365', name: 'text:Sign-in with Office 365' },
     { type: 'css', value: '#divLoginCountry', name: 'css:#divLoginCountry' },
-    { type: 'label', value: 'India', name: 'label:India' },
-    { type: 'text', value: 'India', name: 'text:India' },
-    { type: 'text', value: 'Management', name: 'text:Management' },
-    { type: 'css', value: 'button.btn.btn-primary.btn-sm.full-width.m-b', name: 'css:app sign in button' }
+    { type: 'css', value: '#divLoginCountry label[for="btnLoginCountryIND"]', name: 'css:#divLoginCountry India label' },
+    { type: 'role', role: 'link', options: { name: /welcome/i }, name: 'role:Welcome link' },
+    { type: 'role', role: 'link', options: { name: /log out|logout/i }, name: 'role:Logout link' },
+    { type: 'text', value: 'DigitEYES Data Loader', name: 'text:DigitEYES Data Loader' }
   ],
   managementLanding: [
     { type: 'text', value: 'Management', name: 'text:Management' },

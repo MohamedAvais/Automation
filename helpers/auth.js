@@ -31,6 +31,15 @@ async function isAnySelectorVisible(page, candidates, timeoutPerCandidate = 1500
   }
 }
 
+async function isLocatorVisible(locator, timeout = 1200) {
+  try {
+    await locator.first().waitFor({ state: 'visible', timeout });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 async function acceptStaySignedInIfPresent(page) {
   const promptVisible = await isAnySelectorVisible(page, commonSelectors.staySignedInPrompt, 1000);
   if (!promptVisible) {
@@ -51,25 +60,37 @@ async function acceptStaySignedInIfPresent(page) {
   return false;
 }
 
-async function detectLoginMode(page) {
-  if (await isAnySelectorVisible(page, commonSelectors.microsoftLoginUsername, 1500)) {
-    return 'microsoft-username';
+async function detectAuthState(page) {
+  if (await isAnySelectorVisible(page, commonSelectors.countryPicker, 1200)) {
+    return 'country-picker';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.microsoftLoginPassword, 1500)) {
-    return 'microsoft-password';
+  if (await isAnySelectorVisible(page, commonSelectors.appReady, 1200)) {
+    return 'app-ready';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.staySignedInPrompt, 1000)) {
+  if (await isAnySelectorVisible(page, commonSelectors.staySignedInPrompt, 1200)) {
     return 'microsoft-stay-signed-in';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.legacyLoginUsername, 1500)) {
-    return 'legacy';
+  if (
+    await isLocatorVisible(page.getByRole('heading', { name: /enter password/i }), 1000)
+    || await isLocatorVisible(page.getByPlaceholder('Password'), 1000)
+    || await isLocatorVisible(page.getByText(/forgot my password/i), 1000)
+  ) {
+    return 'microsoft-password';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.postLoginReady, 1500)) {
-    return 'post-login';
+  if (await isLocatorVisible(page.getByPlaceholder('Email, phone, or Skype'), 1000)) {
+    return 'microsoft-username';
+  }
+
+  if (await isAnySelectorVisible(page, commonSelectors.appSignIn, 1200)) {
+    return 'app-office365-interstitial';
+  }
+
+  if (await isAnySelectorVisible(page, commonSelectors.legacyLoginUsername, 1200)) {
+    return 'legacy-direct-login';
   }
 
   return 'unknown';
@@ -100,40 +121,77 @@ async function submitMicrosoftStep(page, label) {
   await waitForAppToSettle(page, 750);
 }
 
-async function loginWithMicrosoftFlow(page, data) {
-  const username = requireCredential(data.Username_Admin, 'Vision Spring username/email');
-  const password = requireCredential(data.Password_Admin, 'Vision Spring password');
+async function fillMicrosoftField(page, candidates, value, label) {
+  const { locator, matchedBy } = await resolveFirst(page, candidates, { timeoutPerCandidate: 5000 });
+  await locator.click({ timeout: 5000 }).catch(() => null);
+  await locator.fill('');
+  await locator.fill(String(value));
 
-  for (let step = 0; step < 4; step += 1) {
-    const mode = await detectLoginMode(page);
-
-    if (mode === 'microsoft-username') {
-      await safeFill(page, commonSelectors.microsoftLoginUsername, username, 'Microsoft Email', { timeoutPerCandidate: 5000 });
-      await submitMicrosoftStep(page, 'Microsoft Next');
-      continue;
-    }
-
-    if (mode === 'microsoft-password') {
-      await safeFill(page, commonSelectors.microsoftLoginPassword, password, 'Microsoft Password', { timeoutPerCandidate: 5000 });
-      await submitMicrosoftStep(page, 'Microsoft Sign In');
-      continue;
-    }
-
-    if (mode === 'microsoft-stay-signed-in') {
-      await acceptStaySignedInIfPresent(page);
-      continue;
-    }
-
-    if (mode === 'post-login') {
-      await waitForAppToSettle(page, 1000);
-      return;
-    }
-
-    break;
+  let fieldValue = await locator.inputValue().catch(() => '');
+  if (fieldValue !== String(value)) {
+    await locator.press('Control+A').catch(() => null);
+    await locator.press('Delete').catch(() => null);
+    await locator.pressSequentially(String(value));
+    fieldValue = await locator.inputValue().catch(() => '');
   }
 
-  await acceptStaySignedInIfPresent(page);
+  if (fieldValue !== String(value)) {
+    throw new Error(`${label} field did not retain the expected value after fill. Matched by: ${matchedBy}`);
+  }
 
+  console.log(`[FILL] ${label} -> ${matchedBy} -> ${value}`);
+}
+
+async function fillMicrosoftLocator(locator, value, label) {
+  const field = locator.first();
+  await field.waitFor({ state: 'visible', timeout: 5000 });
+  await field.click({ timeout: 5000 }).catch(() => null);
+  await field.fill('');
+  await field.fill(String(value));
+
+  let fieldValue = await field.inputValue().catch(() => '');
+  if (fieldValue !== String(value)) {
+    await field.press('Control+A').catch(() => null);
+    await field.press('Delete').catch(() => null);
+    await field.pressSequentially(String(value));
+    fieldValue = await field.inputValue().catch(() => '');
+  }
+
+  if (fieldValue !== String(value)) {
+    throw new Error(`${label} field did not retain the expected value after direct fill.`);
+  }
+
+  console.log(`[FILL] ${label} -> direct locator -> ${value}`);
+}
+
+async function handleMicrosoftEmail(page, data) {
+  const username = requireCredential(data.Username_Admin, 'Vision Spring username/email');
+  await fillMicrosoftLocator(page.getByPlaceholder('Email, phone, or Skype'), username, 'Microsoft Email');
+  await submitMicrosoftStep(page, 'Microsoft Next');
+}
+
+async function handleMicrosoftPassword(page, data) {
+  const password = requireCredential(data.Password_Admin, 'Vision Spring password');
+  const passwordField = page.getByPlaceholder('Password').first();
+  if (await isLocatorVisible(passwordField, 1000)) {
+    await fillMicrosoftLocator(passwordField, password, 'Microsoft Password');
+  } else {
+    await fillMicrosoftField(page, commonSelectors.microsoftLoginPassword, password, 'Microsoft Password');
+  }
+  await submitMicrosoftStep(page, 'Microsoft Sign In');
+}
+
+async function handleAppOffice365Interstitial(page) {
+  const appSignIn = await clickIfFound(page, commonSelectors.appSignIn, {
+    timeoutPerCandidate: 2500,
+    actionTimeout: 5000
+  });
+
+  if (!appSignIn.clicked) {
+    throw new Error('App Office 365 sign-in interstitial was detected but no matching control could be clicked.');
+  }
+
+  console.log(`[CLICK] App Sign In -> ${appSignIn.matchedBy}`);
   await waitForAppToSettle(page, 1500);
 }
 
@@ -175,56 +233,44 @@ async function loginAsAdmin(page, data) {
         throw navigationError;
       }
 
-      const initialMode = await detectLoginMode(page);
+      for (let step = 0; step < 8; step += 1) {
+        const state = await detectAuthState(page);
+        console.log(`[AUTH] state -> ${state}`);
 
-      if (initialMode.startsWith('microsoft')) {
-        await loginWithMicrosoftFlow(page, data);
-      } else if (initialMode === 'legacy') {
-        await loginWithLegacyForm(page, data);
-      } else if (initialMode !== 'post-login') {
-        await acceptStaySignedInIfPresent(page);
-      }
+        if (state === 'country-picker' || state === 'app-ready') {
+          await safeExpectVisible(page, commonSelectors.postLoginReady, 'Post-login ready state', { timeoutPerCandidate: 8000 });
+          return;
+        }
 
-      const appSignIn = await clickIfFound(page, commonSelectors.appSignIn, {
-        timeoutPerCandidate: 2500,
-        actionTimeout: 5000
-      });
+        if (state === 'microsoft-stay-signed-in') {
+          await acceptStaySignedInIfPresent(page);
+          continue;
+        }
 
-      if (appSignIn.clicked) {
-        console.log(`[CLICK] App Sign In -> ${appSignIn.matchedBy}`);
-        await waitForAppToSettle(page, 1500);
-      }
+        if (state === 'microsoft-username') {
+          await handleMicrosoftEmail(page, data);
+          continue;
+        }
 
-      try {
-        await safeExpectVisible(page, commonSelectors.postLoginReady, 'Post-login ready state', { timeoutPerCandidate: 8000 });
-      } catch (error) {
-        await acceptStaySignedInIfPresent(page);
-        await waitForAppToSettle(page, 2500);
+        if (state === 'microsoft-password') {
+          await handleMicrosoftPassword(page, data);
+          continue;
+        }
 
-        const bounceMode = await detectLoginMode(page);
+        if (state === 'app-office365-interstitial') {
+          await handleAppOffice365Interstitial(page);
+          continue;
+        }
 
-        if (bounceMode.startsWith('microsoft')) {
-          console.log('Detected return to Microsoft sign-in page, retrying login flow once.');
-          await loginWithMicrosoftFlow(page, data);
-        } else if (bounceMode === 'legacy') {
-          console.log('Detected direct login form, retrying legacy login once.');
+        if (state === 'legacy-direct-login') {
           await loginWithLegacyForm(page, data);
+          continue;
         }
 
-        const retryAppSignIn = await clickIfFound(page, commonSelectors.appSignIn, {
-          timeoutPerCandidate: 2000,
-          actionTimeout: 5000
-        });
-
-        if (retryAppSignIn.clicked) {
-          console.log(`[CLICK] App Sign In Retry -> ${retryAppSignIn.matchedBy}`);
-          await waitForAppToSettle(page, 2000);
-        }
-
-        await safeExpectVisible(page, commonSelectors.postLoginReady, 'Post-login ready state', { timeoutPerCandidate: 8000 });
+        await waitForAppToSettle(page, 1000);
       }
 
-      return;
+      throw new Error(`Unable to reach authenticated application state. Final state: ${await detectAuthState(page)}`);
     } catch (error) {
       lastError = error;
       if (attempt < 2) {
