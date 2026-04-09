@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesreportingWorkreportvsteamsHelpers
 } = require('./_shared');
 
 test("TC_11_To_verify_that_the_system_displays_no_records_for_an_invalid_Assistant_Manager_input", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_11_To_verify_that_the_system_displays_no_records_for_an_invalid_Assista
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyesreportingWorkreportvsteamsHelpers.openModule(page, data);
+    await digiteyesreportingWorkreportvsteamsHelpers.filterByInvalidAssistantManager(page, 'Invalid Assistant Manager');
   });
 
   await test.step('Logout from the application', async () => {

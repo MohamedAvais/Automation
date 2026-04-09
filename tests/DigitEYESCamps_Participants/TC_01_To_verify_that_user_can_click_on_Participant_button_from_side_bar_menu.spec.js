@@ -17,7 +17,7 @@ test("TC_01_To verify_that_user_can_click_on_Participant_button_from_side_bar_me
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
     await digiteyescampsParticipantsHelpers.openModule(page, data.Country || 'India');
   });
 

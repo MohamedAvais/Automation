@@ -1,8 +1,9 @@
-const { test } = require('@playwright/test');
+﻿const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyessettingsHospitalsHelpers
 } = require('./_shared');
 
 test("TC_21_To_verify_that_the_Sync_from_SF_button_is_functional_under_hospital_module", async ({ page }) => {
@@ -16,10 +17,12 @@ test("TC_21_To_verify_that_the_Sync_from_SF_button_is_functional_under_hospital_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyessettingsHospitalsHelpers.verifySyncFromSalesforce(page, data);
   });
 
   await test.step('Logout from the application', async () => {
     await closeSession(page);
   });
 });
+

@@ -52,7 +52,10 @@ async function resolveFirst(page, candidates, options = {}) {
 
 async function clickWithFallback(page, candidates, options = {}) {
   const { locator, matchedBy } = await resolveFirst(page, candidates, options);
-  await locator.click({ timeout: options.actionTimeout ?? 10000 });
+  await locator.click({
+    timeout: options.actionTimeout ?? 10000,
+    noWaitAfter: options.noWaitAfter
+  });
   return matchedBy;
 }
 

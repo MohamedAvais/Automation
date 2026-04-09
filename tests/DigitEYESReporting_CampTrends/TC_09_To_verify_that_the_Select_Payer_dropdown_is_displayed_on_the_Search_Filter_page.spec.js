@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesreportingCamptrendsHelpers
 } = require('./_shared');
 
 test("TC_09_To_verify_that_the_Select_Payer_dropdown_is_displayed_on_the_Search_Filter_page", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_09_To_verify_that_the_Select_Payer_dropdown_is_displayed_on_the_Search_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyesreportingCamptrendsHelpers.openModule(page, data);
+    await digiteyesreportingCamptrendsHelpers.verifyPayerDropdown(page);
   });
 
   await test.step('Logout from the application', async () => {

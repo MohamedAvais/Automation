@@ -1,8 +1,9 @@
-const { test } = require('@playwright/test');
+﻿const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyessettingsHospitalsHelpers
 } = require('./_shared');
 
 test("TC_20_To_verify_that_the_Define_Hospital_page_allows_the_user_to_inactive_a_hospital", async ({ page }) => {
@@ -16,10 +17,12 @@ test("TC_20_To_verify_that_the_Define_Hospital_page_allows_the_user_to_inactive_
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyessettingsHospitalsHelpers.verifyInactivateHospital(page, data);
   });
 
   await test.step('Logout from the application', async () => {
     await closeSession(page);
   });
 });
+
