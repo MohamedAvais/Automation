@@ -116,6 +116,16 @@ const commonSelectors = {
     { type: 'text', value: 'Logout', name: 'text:Logout' },
     { type: 'xpath', value: '//*[contains(@class,"text-destructive-foreground") and .//*[name()="svg"]]', name: 'xpath:logout destructive item' },
     { type: 'xpath', value: '//div[contains(@class,"cursor-pointer") and .//*[name()="svg"]]', name: 'xpath:logout div with icon' }
+  ],
+  digiteyesSettingsButton: [
+    { type: 'text', value: 'DigitEYES Settings', name: 'text:DigitEYES Settings' },
+    { type: 'css', value: 'button[data-bs-target="#digiteyes-settings"]', name: 'css:DigitEYES Settings button' },
+    { type: 'xpath', value: '//nav[@id="sidebarMenu"]//button[contains(text(), "DigitEYES Settings")]', name: 'xpath:DigitEYES Settings button' },
+    { type: 'xpath', value: '//button[contains(@class, "btn-toggle") and contains(text(), "DigitEYES Settings")]', name: 'xpath:DigitEYES Settings btn-toggle' }
+  ],
+  digiteyesSettingsPanel: [
+    { type: 'css', value: '#digiteyes-settings', name: 'css:#digiteyes-settings' },
+    { type: 'xpath', value: '//*[@id="digiteyes-settings"]', name: 'xpath:digiteyes-settings panel' }
   ]
 };
 
