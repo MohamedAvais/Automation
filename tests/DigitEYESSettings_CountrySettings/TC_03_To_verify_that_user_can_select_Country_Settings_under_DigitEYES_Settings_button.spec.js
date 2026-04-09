@@ -1,8 +1,9 @@
-const { test } = require('@playwright/test');
+﻿const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyessettingsCountrysettingsHelpers
 } = require('./_shared');
 
 test("TC_03_To_verify_that__user_can_select_Country_Settings_under_DigitEYES_Settings_button", async ({ page }) => {
@@ -16,10 +17,12 @@ test("TC_03_To_verify_that__user_can_select_Country_Settings_under_DigitEYES_Set
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyessettingsCountrysettingsHelpers.openModule(page, data);
   });
 
   await test.step('Logout from the application', async () => {
     await closeSession(page);
   });
 });
+

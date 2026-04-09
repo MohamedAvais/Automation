@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesreportingWorkreportipteamsHelpers
 } = require('./_shared');
 
 test("TC_01_To_verify_that_Work_Report_IP_Teams_under_DigitEYES_Reporting_button_is_functional", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_01_To_verify_that_Work_Report_IP_Teams_under_DigitEYES_Reporting_button
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyesreportingWorkreportipteamsHelpers.openModule(page, data);
+    await digiteyesreportingWorkreportipteamsHelpers.verifyModulePage(page);
   });
 
   await test.step('Logout from the application', async () => {

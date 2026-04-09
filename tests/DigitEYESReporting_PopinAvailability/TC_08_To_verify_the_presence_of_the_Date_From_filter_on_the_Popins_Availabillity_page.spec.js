@@ -2,7 +2,8 @@ const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyesreportingPopinavailabilityHelpers
 } = require('./_shared');
 
 test("TC_08_To_verify_the_presence_of_the_Date_From_filter_on_the_Popins_Availabillity_page", async ({ page }) => {
@@ -16,7 +17,9 @@ test("TC_08_To_verify_the_presence_of_the_Date_From_filter_on_the_Popins_Availab
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyesreportingPopinavailabilityHelpers.openModule(page, data);
+    await digiteyesreportingPopinavailabilityHelpers.verifyDateFromPresence(page);
   });
 
   await test.step('Logout from the application', async () => {

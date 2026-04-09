@@ -1,8 +1,9 @@
-const { test } = require('@playwright/test');
+﻿const { test } = require('@playwright/test');
 const {
   loadRuntimeData,
   loginAsAdmin,
-  closeSession
+  closeSession,
+  digiteyessettingsHospitalsHelpers
 } = require('./_shared');
 
 test("TC_03_To_verify_Previous_page_and_First_page_navigation_arrows_on_implementation_Partners_page", async ({ page }) => {
@@ -16,10 +17,12 @@ test("TC_03_To_verify_Previous_page_and_First_page_navigation_arrows_on_implemen
     await loginAsAdmin(page, data);
   });
 
-  await test.step('Run converted flow', async () => {
+  await test.step(test.info().title.replace(/^TC_\d+_/, '').replace(/_/g, ' ').replace(/\s+/g, ' ').trim().replace(/^To verify\b/i, 'Verify').replace(/\.$/, ''), async () => {
+    await digiteyessettingsHospitalsHelpers.verifyPreviousAndFirstPagination(page, data);
   });
 
   await test.step('Logout from the application', async () => {
     await closeSession(page);
   });
 });
+
