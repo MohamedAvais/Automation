@@ -22,6 +22,20 @@ async function selectLoginCountry(page, country = 'India') {
     if (appSignIn.clicked) {
       await waitForAppToSettle(page, 2000);
     }
+
+    const countryAfterInterstitial = await resolveFirst(page, commonSelectors.loginCountryIndia, {
+      timeoutPerCandidate: 1500
+    }).catch(() => null);
+
+    if (!countryAfterInterstitial) {
+      const appReady = await resolveFirst(page, commonSelectors.appReady, {
+        timeoutPerCandidate: 1500
+      }).catch(() => null);
+
+      if (appReady) {
+        return;
+      }
+    }
   }
 
   await safeClick(page, commonSelectors.loginCountryIndia, 'Login Country India', { timeoutPerCandidate: 5000 });

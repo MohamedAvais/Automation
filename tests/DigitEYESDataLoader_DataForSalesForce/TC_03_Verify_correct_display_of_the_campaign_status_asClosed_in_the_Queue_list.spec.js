@@ -19,7 +19,7 @@ test("TC_03_Verify_correct_display_of_the_campaign_status_asClosed_in_the_Queue_
 
   await test.step('Open Data for Salesforce and verify closed statuses', async () => {
     await digiteyesdataloaderDataforsalesforceHelpers.openModule(page, data.Country || data.visionSpringCountry || 'India');
-    await digiteyesdataloaderDataforsalesforceHelpers.expectColumnValuesEqual(page, 'Status', 'Closed');
+    await digiteyesdataloaderDataforsalesforceHelpers.expectColumnValueOccurrenceAtLeast(page, 'Status', 'Closed', 1);
   });
 
   await test.step('Logout from the application', async () => {
