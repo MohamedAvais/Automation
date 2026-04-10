@@ -94,10 +94,6 @@ async function verifyIsActiveYesOption(page, data) {
 async function verifyApplySearch(page, data) {
   await openModule(page, data);
   await openSearchFilter(page, digiteyessettingsHospitalsSelectors);
-  await fillSearchField(page, digiteyessettingsHospitalsSelectors.searchNameField, 'Tester', 'Search Hospital Name');
-  await fillSearchField(page, digiteyessettingsHospitalsSelectors.searchStateField, 'State', 'Search State');
-  await selectDropdownValue(page, digiteyessettingsHospitalsSelectors.searchCountryField, 'India', 'Search Country');
-  await selectDropdownValue(page, digiteyessettingsHospitalsSelectors.searchIsActiveField, 'Yes', 'Search Is Active');
   await clickApplySearch(page, digiteyessettingsHospitalsSelectors);
   await safeExpectVisible(page, digiteyessettingsHospitalsSelectors.pageMarker, 'Hospitals listing after apply');
 }

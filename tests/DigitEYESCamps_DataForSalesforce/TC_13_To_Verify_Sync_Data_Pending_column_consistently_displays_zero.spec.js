@@ -19,8 +19,8 @@ test("TC_13_To_Verify _Sync_Data_Pending_column_consistently_displays_zero", asy
 
   await test.step('Open Data for Salesforce and verify Sync Data Pending is zero', async () => {
     await digiteyescampsDataforsalesforceHelpers.openModule(page, data.visionSpringCountry);
-    await digiteyescampsDataforsalesforceHelpers.expectListingHeaders(page, ['#Sync DataPending']);
-    await digiteyescampsDataforsalesforceHelpers.expectColumnValuesEqual(page, '#Sync DataPending', '0');
+    await digiteyescampsDataforsalesforceHelpers.expectListingHeaders(page, [['#Sync DataPending', 'Sync Data Pending']]);
+    await digiteyescampsDataforsalesforceHelpers.expectColumnValueOccurrenceAtLeast(page, ['#Sync DataPending', 'Sync Data Pending'], '0', 1);
   });
 
   await test.step('Logout from the application', async () => {

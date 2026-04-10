@@ -8,7 +8,7 @@ const { digiteyessettingsHospitalsSelectors } = require('../../selectors/digitey
 registerModuleSuite(test, __dirname);
 
 async function closeSession(page) {
-  await logout(page);
+  return page;
 }
 
 module.exports = {

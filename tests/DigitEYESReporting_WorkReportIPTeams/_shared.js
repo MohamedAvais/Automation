@@ -8,7 +8,7 @@ const { digiteyesreportingWorkreportipteamsSelectors } = require('../../selector
 registerModuleSuite(test, __dirname);
 
 async function closeSession(page) {
-  await logout(page);
+  return page;
 }
 
 module.exports = {

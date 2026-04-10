@@ -15,6 +15,10 @@ const digiteyesreportingCamptrendsSelectors = {
   searchForm: [
     { type: 'css', value: '#frmSearch', name: 'css:#frmSearch' }
   ],
+  countryField: [
+    { type: 'css', value: '#search_countrycode', name: 'css:#search_countrycode' },
+    { type: 'css', value: 'select[name="search_countrycode"]', name: 'css:select[name=search_countrycode]' }
+  ],
   themeField: [
     { type: 'css', value: '#search_theme', name: 'css:#search_theme' }
   ],
@@ -26,6 +30,17 @@ const digiteyesreportingCamptrendsSelectors = {
   ],
   dateToField: [
     { type: 'css', value: '#search_dateto', name: 'css:#search_dateto' }
+  ],
+  applyButton: [
+    { type: 'css', value: '#frmSearch .modal-footer .btn.btn-sm.btn-primary', name: 'css:Apply button' },
+    { type: 'role', role: 'button', options: { name: /^apply$/i }, name: 'role:Apply' }
+  ],
+  resetButton: [
+    { type: 'css', value: '#frmSearch .modal-footer .btn.btn-sm.btn-secondary', name: 'css:Reset button' },
+    { type: 'role', role: 'button', options: { name: /^reset$/i }, name: 'role:Reset' }
+  ],
+  chartCanvas: [
+    { type: 'css', value: '#Widget_Chart', name: 'css:#Widget_Chart' }
   ]
 };
 
