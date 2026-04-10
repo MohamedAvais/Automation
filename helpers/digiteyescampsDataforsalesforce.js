@@ -162,6 +162,39 @@ async function markFirstRowDataImported(page) {
   expect(afterCount).toBeLessThanOrEqual(beforeCount);
 }
 
+async function clickPushGeoToSalesforce(page) {
+  page.once('dialog', async (dialog) => {
+    await dialog.accept();
+  });
+
+  await safeClick(page, digiteyescampsDataforsalesforceSelectors.pushGeoToSalesforceButton, 'Push GEO to Salesforce');
+  await waitForAppToSettle(page, 1500);
+}
+
+async function expectGEOErrorMessage(page) {
+  await safeExpectText(
+    page,
+    digiteyescampsDataforsalesforceSelectors.geoPushErrorMessage,
+    /external id|error/i,
+    'GEO push error message',
+    { timeoutPerCandidate: 10000, expectTimeout: 10000 }
+  );
+}
+
+async function clickPushConsent(page) {
+  await safeClick(page, digiteyescampsDataforsalesforceSelectors.pushConsentButton, 'Push Consent');
+  await waitForAppToSettle(page, 1500);
+}
+
+async function expectConsentOnSharePointPendingPage(page) {
+  await safeExpectVisible(
+    page,
+    digiteyescampsDataforsalesforceSelectors.consentOnSharePointPendingHeading,
+    'Consent on SharePoint Pending heading',
+    { timeoutPerCandidate: 10000 }
+  );
+}
+
 async function downloadFirstMatchingFile(page, candidates, label, extensionPattern) {
   const { locator } = await resolveFirst(page, candidates, { timeoutPerCandidate: 5000 });
   const [download] = await Promise.all([
@@ -266,6 +299,10 @@ module.exports = {
     expectActionButtonsVisible,
     openFirstViewSummaryReport,
     markFirstRowDataImported,
+    clickPushGeoToSalesforce,
+    expectGEOErrorMessage,
+    clickPushConsent,
+    expectConsentOnSharePointPendingPage,
     downloadFirstXls,
     downloadFirstCsv,
     clickShowDatesAndExpectCampDates,

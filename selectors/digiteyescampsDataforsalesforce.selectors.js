@@ -51,6 +51,26 @@ const digiteyescampsDataforsalesforceSelectors = {
     { type: 'role', role: 'button', options: { name: /show dates/i }, name: 'role:Show Dates' },
     { type: 'xpath', value: '//table[@id="datatable"]//button[normalize-space()="Show Dates"]', name: 'xpath:Show Dates' },
     { type: 'text', value: 'Show Dates', name: 'text:Show Dates' }
+  ],
+  pushGeoToSalesforceButton: [
+    { type: 'role', role: 'button', options: { name: /push geo to salesforce/i }, name: 'role:Push GEO to Salesforce' },
+    { type: 'css', value: '.btnPushGEOToSalesforce', name: 'css:.btnPushGEOToSalesforce' },
+    { type: 'text', value: 'Push GEO to Salesforce', name: 'text:Push GEO to Salesforce' }
+  ],
+  pushConsentButton: [
+    { type: 'role', role: 'button', options: { name: /push consent/i }, name: 'role:Push Consent' },
+    { type: 'css', value: 'button.btn-sm.btn-secondary', name: 'css:Push Consent button' },
+    { type: 'text', value: 'Push Consent', name: 'text:Push Consent' }
+  ],
+  consentOnSharePointPendingHeading: [
+    { type: 'role', role: 'heading', options: { name: /consent on sharepoint pending/i }, name: 'role:Consent on SharePoint Pending heading' },
+    { type: 'text', value: 'Consent on SharePoint Pending', name: 'text:Consent on SharePoint Pending' },
+    { type: 'xpath', value: '//header//h3[normalize-space()="Consent on SharePoint Pending"]', name: 'xpath:Consent on SharePoint Pending' }
+  ],
+  geoPushErrorMessage: [
+    { type: 'css', value: '.alert.alert-danger, .alert-danger, #toast-container .toast-message', name: 'css:GEO error message' },
+    { type: 'text', value: 'External ID', name: 'text:External ID' },
+    { type: 'text', value: 'error', name: 'text:error' }
   ]
 };
 
