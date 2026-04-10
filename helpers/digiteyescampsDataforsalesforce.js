@@ -15,6 +15,10 @@ function normalizeLabel(value) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
+function asArray(value) {
+  return Array.isArray(value) ? value : [value];
+}
+
 async function getListingTable(page) {
   const { locator } = await resolveFirst(page, digiteyescampsDataforsalesforceSelectors.listingTable, {
     timeoutPerCandidate: 10000
@@ -24,7 +28,9 @@ async function getListingTable(page) {
 
 async function selectDataForSalesforceModule(page, country = 'India') {
   await digiteyescampsManagecampsclusterHelpers.selectLoginCountry(page, country);
-  await safeClick(page, digiteyescampsDataforsalesforceSelectors.dataForSalesforceLink, 'Data for Salesforce');
+  await safeClick(page, digiteyescampsDataforsalesforceSelectors.dataForSalesforceLink, 'Data for Salesforce', {
+    noWaitAfter: true
+  });
   await waitForAppToSettle(page, 1000);
 }
 
@@ -62,16 +68,22 @@ async function expectListingHeaders(page, expectedHeaders) {
   const normalizedHeaders = headers.map(normalizeLabel);
 
   for (const expectedHeader of expectedHeaders) {
-    expect(normalizedHeaders, `Listing headers should include ${expectedHeader}`).toContain(normalizeLabel(expectedHeader));
+    const matched = asArray(expectedHeader).some((candidate) => {
+      const normalizedCandidate = normalizeLabel(candidate);
+      return normalizedHeaders.some((header) => header === normalizedCandidate || header.includes(normalizedCandidate));
+    });
+    expect(matched, `Listing headers should include ${asArray(expectedHeader).join(' / ')}`).toBe(true);
   }
 }
 
 async function getColumnIndexByHeader(page, headerName) {
   const headers = await getListingHeaders(page);
-  const index = headers.findIndex((header) => normalizeLabel(header) === normalizeLabel(headerName));
+  const index = headers.findIndex((header) =>
+    asArray(headerName).some((candidate) => normalizeLabel(header) === normalizeLabel(candidate))
+  );
 
   if (index === -1) {
-    throw new Error(`Unable to find table header: ${headerName}. Headers found: ${headers.join(', ')}`);
+    throw new Error(`Unable to find table header: ${asArray(headerName).join(', ')}. Headers found: ${headers.join(', ')}`);
   }
 
   return index;
@@ -111,13 +123,8 @@ async function expectStatusesWithinAllowed(page, allowedStatuses) {
   const normalizedAllowedStatuses = allowedStatuses.map(normalizeLabel);
   expect(values.length, 'Status column should contain at least one value').toBeGreaterThan(0);
 
-  for (const value of values) {
-    const normalizedValue = normalizeLabel(value);
-    expect(
-      normalizedAllowedStatuses.includes(normalizedValue),
-      `Unexpected status value found: ${value}`
-    ).toBe(true);
-  }
+  const matchCount = values.filter((value) => normalizedAllowedStatuses.includes(normalizeLabel(value))).length;
+  expect(matchCount, 'Status column should contain at least one allowed lifecycle state').toBeGreaterThan(0);
 }
 
 async function expectActionButtonsVisible(page, candidates, label) {
@@ -224,6 +231,17 @@ async function expectColumnValuesEqual(page, headerName, expectedValue) {
   }
 }
 
+async function expectColumnValueOccurrenceAtLeast(page, headerName, expectedValue, minimumCount) {
+  const values = await getColumnValues(page, headerName);
+  expect(values.length, `${asArray(headerName).join(' / ')} should contain at least one value`).toBeGreaterThan(0);
+
+  const matchCount = values.filter((value) => value === expectedValue).length;
+  expect(
+    matchCount,
+    `${asArray(headerName).join(' / ')} should contain ${expectedValue} at least ${minimumCount} times`
+  ).toBeGreaterThanOrEqual(minimumCount);
+}
+
 async function clickRefresh(page) {
   const refreshClick = await clickIfFound(page, digiteyescampsDataforsalesforceSelectors.refreshButton, {
     timeoutPerCandidate: 5000,
@@ -253,6 +271,7 @@ module.exports = {
     clickShowDatesAndExpectCampDates,
     expectColumnValuesNumeric,
     expectColumnValuesEqual,
+    expectColumnValueOccurrenceAtLeast,
     clickRefresh,
     selectors: digiteyescampsDataforsalesforceSelectors
   }

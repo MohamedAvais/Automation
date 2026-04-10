@@ -22,6 +22,14 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isMicrosoftUrl(url) {
+  return url.includes('login.microsoftonline.com') || url.includes('aadcdn.ms') || url.includes('msauth');
+}
+
+function isAppUrl(url) {
+  return url.includes('dealphacloud') || url.includes('visionspring');
+}
+
 async function isAnySelectorVisible(page, candidates, timeoutPerCandidate = 1500) {
   try {
     await resolveFirst(page, candidates, { timeoutPerCandidate });
@@ -60,40 +68,108 @@ async function acceptStaySignedInIfPresent(page) {
   return false;
 }
 
-async function detectAuthState(page) {
-  if (await isAnySelectorVisible(page, commonSelectors.countryPicker, 1200)) {
-    return 'country-picker';
-  }
-
-  if (await isAnySelectorVisible(page, commonSelectors.appReady, 1200)) {
-    return 'app-ready';
-  }
-
-  if (await isAnySelectorVisible(page, commonSelectors.staySignedInPrompt, 1200)) {
+async function detectMicrosoftState(page) {
+  if (await isAnySelectorVisible(page, commonSelectors.staySignedInPrompt, 800)) {
     return 'microsoft-stay-signed-in';
   }
 
   if (
-    await isLocatorVisible(page.getByRole('heading', { name: /enter password/i }), 1000)
-    || await isLocatorVisible(page.getByPlaceholder('Password'), 1000)
-    || await isLocatorVisible(page.getByText(/forgot my password/i), 1000)
+    await isLocatorVisible(page.getByRole('heading', { name: /enter password/i }), 700)
+    || await isLocatorVisible(page.getByPlaceholder('Password'), 700)
+    || await isLocatorVisible(page.getByText(/forgot my password/i), 700)
   ) {
     return 'microsoft-password';
   }
 
-  if (await isLocatorVisible(page.getByPlaceholder('Email, phone, or Skype'), 1000)) {
+  if (await isLocatorVisible(page.getByPlaceholder('Email, phone, or Skype'), 700)) {
     return 'microsoft-username';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.appSignIn, 1200)) {
+  return 'microsoft-transition';
+}
+
+async function detectAppState(page) {
+  if (await isAnySelectorVisible(page, commonSelectors.countryPicker, 800)) {
+    return 'country-picker';
+  }
+
+  if (await isAnySelectorVisible(page, commonSelectors.appReady, 800)) {
+    return 'app-ready';
+  }
+
+  if (await isAnySelectorVisible(page, commonSelectors.appSignIn, 800)) {
     return 'app-office365-interstitial';
   }
 
-  if (await isAnySelectorVisible(page, commonSelectors.legacyLoginUsername, 1200)) {
+  if (await isAnySelectorVisible(page, commonSelectors.legacyLoginUsername, 800)) {
     return 'legacy-direct-login';
   }
 
+  return 'app-transition';
+}
+
+async function waitForAuthTransition(page, timeoutMs = 6000) {
+  const startedAt = Date.now();
+
+  while ((Date.now() - startedAt) < timeoutMs) {
+    if (!page || page.isClosed()) {
+      return 'page-closed';
+    }
+
+    const state = await detectAuthState(page);
+    if (!['unknown', 'microsoft-transition', 'app-transition'].includes(state)) {
+      return state;
+    }
+
+    await page.waitForTimeout(250).catch(() => null);
+  }
+
+  return detectAuthState(page);
+}
+
+async function detectAuthState(page) {
+  if (!page || page.isClosed()) {
+    return 'page-closed';
+  }
+
+  const currentUrl = page.url().toLowerCase();
+
+  if (isMicrosoftUrl(currentUrl)) {
+    return detectMicrosoftState(page);
+  }
+
+  if (isAppUrl(currentUrl)) {
+    return detectAppState(page);
+  }
+
+  if (await isLocatorVisible(page.getByPlaceholder('Email, phone, or Skype'), 500)) {
+    return 'microsoft-username';
+  }
+
+  if (await isAnySelectorVisible(page, commonSelectors.countryPicker, 500)) {
+    return 'country-picker';
+  }
+
   return 'unknown';
+}
+
+async function recoverUnknownAuthState(page) {
+  if (!page || page.isClosed()) {
+    return false;
+  }
+
+  if (await acceptStaySignedInIfPresent(page)) {
+    return true;
+  }
+
+  await waitForAppToSettle(page, 1500);
+
+  if (await isAnySelectorVisible(page, commonSelectors.appSignIn, 1200)) {
+    await handleAppOffice365Interstitial(page);
+    return true;
+  }
+
+  return false;
 }
 
 async function submitMicrosoftStep(page, label) {
@@ -102,14 +178,14 @@ async function submitMicrosoftStep(page, label) {
   for (let attempt = 0; attempt < 20; attempt++) {
     if (await locator.isEnabled().catch(() => false)) {
       try {
-        await locator.click({ timeout: 5000 });
+        await locator.click({ timeout: 5000, noWaitAfter: true });
       } catch (error) {
         if (!isRecoverableNavigationError(error)) {
           throw error;
         }
       }
       console.log(`[CLICK] ${label} -> ${matchedBy}`);
-      await waitForAppToSettle(page, 750);
+      await waitForAuthTransition(page, 5000).catch(() => null);
       return;
     }
 
@@ -118,7 +194,7 @@ async function submitMicrosoftStep(page, label) {
 
   await page.keyboard.press('Enter');
   console.log(`[PRESS] ${label} -> Enter fallback`);
-  await waitForAppToSettle(page, 750);
+  await waitForAuthTransition(page, 5000).catch(() => null);
 }
 
 async function fillMicrosoftField(page, candidates, value, label) {
@@ -211,6 +287,7 @@ async function loginAsAdmin(page, data) {
 
   for (let attempt = 1; attempt <= 2; attempt += 1) {
     try {
+      let unknownStateCount = 0;
       let navigationError;
 
       for (let navAttempt = 1; navAttempt <= 5; navAttempt += 1) {
@@ -233,9 +310,13 @@ async function loginAsAdmin(page, data) {
         throw navigationError;
       }
 
-      for (let step = 0; step < 8; step += 1) {
+      for (let step = 0; step < 12; step += 1) {
         const state = await detectAuthState(page);
         console.log(`[AUTH] state -> ${state}`);
+
+        if (state === 'page-closed') {
+          throw new Error('Authentication page was closed unexpectedly during login.');
+        }
 
         if (state === 'country-picker' || state === 'app-ready') {
           await safeExpectVisible(page, commonSelectors.postLoginReady, 'Post-login ready state', { timeoutPerCandidate: 8000 });
@@ -265,6 +346,23 @@ async function loginAsAdmin(page, data) {
         if (state === 'legacy-direct-login') {
           await loginWithLegacyForm(page, data);
           continue;
+        }
+
+        if (state === 'microsoft-transition' || state === 'app-transition') {
+          unknownStateCount = 0;
+          await waitForAuthTransition(page, 4000);
+          continue;
+        }
+
+        unknownStateCount += 1;
+
+        if (await recoverUnknownAuthState(page)) {
+          unknownStateCount = 0;
+          continue;
+        }
+
+        if (unknownStateCount >= 3) {
+          throw new Error(`Authentication flow became stuck in an unknown state at ${page.url()}`);
         }
 
         await waitForAppToSettle(page, 1000);

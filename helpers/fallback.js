@@ -28,20 +28,34 @@ function toLocator(page, candidate) {
 async function resolveFirst(page, candidates, options = {}) {
   const timeoutPerCandidate = options.timeoutPerCandidate ?? 2000;
   const mustBeVisible = options.mustBeVisible ?? true;
+  const maxCandidateMatches = options.maxCandidateMatches ?? 5;
   const errors = [];
 
   for (const candidate of candidates) {
     try {
-      const locator = toLocator(page, candidate).first();
-      if (mustBeVisible) {
-        await locator.waitFor({ state: 'visible', timeout: timeoutPerCandidate });
-      } else {
-        await expect(locator).toHaveCount(1, { timeout: timeoutPerCandidate });
+      const baseLocator = toLocator(page, candidate);
+      const totalMatches = await baseLocator.count();
+      const attempts = Math.max(1, Math.min(totalMatches, maxCandidateMatches));
+
+      for (let index = 0; index < attempts; index += 1) {
+        const locator = baseLocator.nth(index);
+        try {
+          if (mustBeVisible) {
+            await locator.waitFor({ state: 'visible', timeout: timeoutPerCandidate });
+          } else {
+            await expect(locator).toHaveCount(1, { timeout: timeoutPerCandidate });
+          }
+
+          return {
+            locator,
+            matchedBy: candidate.name || `${candidate.type}:${candidate.value || candidate.selector || 'custom'}`
+          };
+        } catch (error) {
+          if (index === attempts - 1) {
+            throw error;
+          }
+        }
       }
-      return {
-        locator,
-        matchedBy: candidate.name || `${candidate.type}:${candidate.value || candidate.selector || 'custom'}`
-      };
     } catch (error) {
       errors.push(`${candidate.name || candidate.type}: ${error.message}`);
     }

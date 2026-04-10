@@ -2,8 +2,19 @@ const { expect } = require('@playwright/test');
 const { clickWithFallback, clickIfFound, fillWithFallback, expectVisibleWithFallback, resolveFirst } = require('./fallback');
 
 async function waitForAppToSettle(page, pauseMs = 750) {
-  await page.waitForLoadState('domcontentloaded');
-  await page.waitForTimeout(pauseMs);
+  if (!page || page.isClosed()) {
+    return;
+  }
+
+  try {
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(pauseMs);
+  } catch (error) {
+    if (/Target page, context or browser has been closed/i.test(error.message)) {
+      return;
+    }
+    throw error;
+  }
 }
 
 async function safeClick(page, candidates, label, options = {}) {

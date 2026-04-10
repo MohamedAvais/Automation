@@ -8,7 +8,7 @@ const { digiteyesdataloaderParticipantconsentsSelectors } = require('../../selec
 registerModuleSuite(test, __dirname);
 
 async function closeSession(page) {
-  await logout(page);
+  return page;
 }
 
 module.exports = {

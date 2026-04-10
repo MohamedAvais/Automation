@@ -228,6 +228,15 @@ For team members starting a new module:
 4. Reuse the same `_shared.js` and `test.step()` pattern.
 5. Stabilize through helpers/selectors, not spec-by-spec patches.
 
+## Repository-Specific Handoff
+
+For the current Vision Spring repository, use docs/vision-spring-conversion-handoff.md as the current working handoff for:
+
+- latest validated shared fixes
+- current delta-conversion progress
+- reporting-specific implementation lessons
+- recommended next modules and conversion rules
+
 ## Scaffold Command
 
 Use:

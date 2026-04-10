@@ -1,7 +1,7 @@
 {
-  "name": "imremit-fileprocessing-playwright-poc",
+  "name": "vision-spring-playwright",
   "version": "1.0.0",
-  "description": "Playwright POC converted from AIQ FileProcessing module with reusable fallback locator handling.",
+  "description": "Vision Spring Playwright Test Automation Framework",
   "private": true,
   "scripts": {
     "test": "playwright test",

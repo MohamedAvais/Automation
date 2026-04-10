@@ -34,9 +34,22 @@ async function openReportingModule(page, data, selectors, moduleName) {
 }
 
 async function openSearchFilter(page, selectors) {
-  await safeClick(page, selectors.searchFilterButton, 'Search / Filter');
-  await waitForAppToSettle(page, 500);
-  await safeExpectVisible(page, selectors.searchForm, 'Search filter form');
+  const visibleSearchForm = page.locator('#frmSearch:visible').first();
+
+  if (await visibleSearchForm.isVisible().catch(() => false)) {
+    return;
+  }
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    await safeClick(page, selectors.searchFilterButton, 'Search / Filter', { noWaitAfter: true });
+    await waitForAppToSettle(page, 500);
+    if (await visibleSearchForm.isVisible().catch(() => false)) {
+      console.log('[ASSERT_VISIBLE] Search filter form -> css:#frmSearch:visible');
+      return;
+    }
+  }
+
+  await safeExpectVisible(page, selectors.searchForm, 'Search filter form', { timeoutPerCandidate: 4000 });
 }
 
 async function closeSearchFilter(page, selectors) {
@@ -66,7 +79,15 @@ async function clearFieldAndExpectEmpty(page, fieldSelectors, label) {
 }
 
 async function applySearch(page, selectors) {
-  await safeClick(page, selectors.applyButton, 'Apply search filter');
+  try {
+    await safeClick(page, selectors.applyButton, 'Apply search filter');
+  } catch (error) {
+    const visibleSearchForm = page.locator('#frmSearch:visible').first();
+    await expect(visibleSearchForm).toBeVisible({ timeout: 10000 });
+    const visibleApplyButton = visibleSearchForm.locator('.modal-footer .btn.btn-sm.btn-primary:visible').first();
+    await visibleApplyButton.evaluate((element) => element.click());
+    console.log('[CLICK] Apply search filter -> form footer fallback');
+  }
   await waitForAppToSettle(page, 1000);
 }
 
@@ -92,7 +113,15 @@ async function expectDropdownOptions(page, fieldSelectors, expectedOptions, labe
 }
 
 async function expectTableHeaders(page, headerSelector, expectedHeaders, label) {
-  const actualHeaders = (await page.locator(headerSelector).allTextContents()).map(normalizeText).filter(Boolean);
+  let actualHeaders = [];
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    actualHeaders = (await page.locator(headerSelector).allTextContents()).map(normalizeText).filter(Boolean);
+    if (actualHeaders.length > 0) {
+      break;
+    }
+    await page.waitForTimeout(300);
+  }
 
   for (const header of expectedHeaders) {
     expect(actualHeaders).toContain(normalizeText(header));

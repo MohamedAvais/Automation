@@ -3,10 +3,12 @@ const {
   openSettingsModule,
   openFirstRowConfigure
 } = require('./digiteyessettingsCommon');
+const { safeExpectVisible } = require('./actions');
 const { digiteyessettingsCountrysettingsSelectors } = require('../selectors/digiteyessettingsCountrysettings.selectors');
 
 async function verifySettingsMenu(page, data) {
   await openSettingsMenu(page, data, digiteyessettingsCountrysettingsSelectors);
+  await safeExpectVisible(page, digiteyessettingsCountrysettingsSelectors.moduleLink, 'Country Settings module link');
 }
 
 async function openModule(page, data) {
